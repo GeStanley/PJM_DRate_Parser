@@ -1,17 +1,16 @@
 package gui;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Font;
-import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.text.DecimalFormat;
 import java.util.List;
-
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTable;
 import javax.swing.JTextField;
@@ -24,10 +23,15 @@ import data.DRateParser;
 
 public class Interface extends JComponent implements ActionListener {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	private List<String> data;
 	private DRateParser drp;
 	
 	JLabel lastUpdate;
+	Color defaultColor;
 	JLabel nextUpdate;
 	JButton refresh;
 	
@@ -36,9 +40,11 @@ public class Interface extends JComponent implements ActionListener {
 	
 	JTextField average;
 	
-	Timer timer;
-	int mult = 5;
-	int time = 1000 * mult;
+	String updated="";
+	
+	static Timer timer;
+	int mult = 120;
+	int time = 100 * mult;
 	
 	double total;
 	
@@ -58,9 +64,12 @@ public class Interface extends JComponent implements ActionListener {
 		lastUpdate = new JLabel();
 		lastUpdate.setText(data.remove(0));
 		lastUpdate.setHorizontalAlignment(JTextField.CENTER);
+		lastUpdate.setOpaque(true);
+		defaultColor = lastUpdate.getBackground();
+		
 		//lastUpdate.
 		
-		nextUpdate = new JLabel("5");
+		nextUpdate = new JLabel(Integer.toString(time/1000));
 		nextUpdate.setHorizontalAlignment(JTextField.CENTER);
 		
 		jpStart.add(lastUpdate, BorderLayout.NORTH);
@@ -109,16 +118,16 @@ public class Interface extends JComponent implements ActionListener {
 		
 		this.add(table, BorderLayout.CENTER);
 		
-		timer = new Timer(1000,this);
-		timer.setInitialDelay(1000);
+		timer = new Timer(100,this);
+		timer.setInitialDelay(100);
 		timer.setRepeats(true);
-		timer.start();
+		
 	}
 	
 	private void setGUIData(){
 		total=0;
-		data.clear();
-		data = drp.retrieveData();
+		
+		lastUpdate.setBackground(defaultColor);
 		lastUpdate.setText(data.remove(0));
 		dRateData.getColumnModel().getColumn(0).setHeaderValue(data.remove(0));
 		
@@ -139,25 +148,56 @@ public class Interface extends JComponent implements ActionListener {
 	public void actionPerformed(ActionEvent e) {
 
 		if (e.getSource() == this.refresh || time==0) {
-			this.setGUIData();
-			int s = (time/1000);
-			nextUpdate.setText(Integer.toString(s));
-			time = 1000 * mult;
-		}else if(time>0){
-			int s = (time/1000);
-			nextUpdate.setText(Integer.toString(s));
-			time -= 1000;
+			
+			if(data!=null)
+				data.clear();
+			
+			data = drp.retrieveData();
+			
+			if(data==null)
+				lastUpdate.setBackground(Color.red);
+						
+			if(updated.equals(data.get(0))){
+				
+				double d = 1000;
+				double s = time/d;
+				nextUpdate.setText(Double.toString(s));
+				time = 500;
+			}
+			else{
+				updated=data.get(0);
+				this.setGUIData();
+				double d = 1000;
+				double s = time/d;
+				nextUpdate.setText(Double.toString(s));
+				time = 100 * mult;
+			}
+		}
+		else if(time>0){
+			double d = 1000;
+			double s = time/d;
+			nextUpdate.setText(Double.toString(s));
+			time -= 100;
 		}
 
 	}
 	
 	public static void main(String[] args){
 		JFrame jf = new JFrame("PJM - DRate");
-		jf.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		Interface interf = new Interface();
-		jf.add(interf);
-
-		jf.pack();
-		jf.setVisible(true);
+		
+		try{
+			jf.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+			Interface interf = new Interface();
+			jf.add(interf);
+	
+			jf.pack();
+			jf.setVisible(true);
+			
+			timer.start();
+		}catch (Exception e){
+			e.printStackTrace();
+			JOptionPane.showMessageDialog(jf,"There was an error:\n"+e.toString(),
+					"Error", JOptionPane.ERROR_MESSAGE);
+		}
 	}
 }

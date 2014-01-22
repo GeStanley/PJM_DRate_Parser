@@ -20,10 +20,13 @@ public class DRateParser {
 		Document doc=null;
 		
 		try {
+			
 			doc = Jsoup.connect(URL).get();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+				
+			return null;
 		}
 		
 		Elements body = doc.getElementsByTag("TD");
