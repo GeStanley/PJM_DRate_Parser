@@ -43,7 +43,7 @@ public class Interface extends JComponent implements ActionListener {
 	String updated="";
 	
 	static Timer timer;
-	int mult = 120;
+	int mult = 115;
 	int time = 100 * mult;
 	
 	double total;
@@ -157,7 +157,7 @@ public class Interface extends JComponent implements ActionListener {
 			if(data==null)
 				lastUpdate.setBackground(Color.red);
 						
-			if(updated.equals(data.get(0))){
+			if(data==null || updated.equals(data.get(0))){
 				
 				double d = 1000;
 				double s = time/d;
