@@ -3,9 +3,13 @@ package gui;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Font;
+import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.InputStream;
 import java.util.List;
+
+import javax.imageio.ImageIO;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
@@ -189,7 +193,13 @@ public class Interface extends JComponent implements ActionListener {
 			jf.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 			Interface interf = new Interface();
 			jf.add(interf);
-	
+			
+			ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+			InputStream input = classLoader.getResourceAsStream("yoda.jpg");
+			Image logo = ImageIO.read(input);
+			
+			jf.setIconImage(logo);
+			
 			jf.pack();
 			jf.setVisible(true);
 			
